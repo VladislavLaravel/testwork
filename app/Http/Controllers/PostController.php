@@ -9,8 +9,6 @@ use App\Post;
 use Auth;
 use Validator;
 
-use Illuminate\Support\Facades\Input;
-
 class PostController extends Controller
 {   
     // validetions rules

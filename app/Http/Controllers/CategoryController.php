@@ -7,8 +7,6 @@ use App\Category;
 use Auth;
 use Validator;
 
-use Illuminate\Support\Facades\Input;
-
 class CategoryController extends Controller
 {   
     // validetions rules
