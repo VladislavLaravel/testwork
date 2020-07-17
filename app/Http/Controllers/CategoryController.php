@@ -2,25 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\CategoryRequest;
 use App\Category;
 use Auth;
 use Validator;
 
 class CategoryController extends Controller
-{   
-    // validetions rules
-
-    protected $rules = [
-        'name'        => 'required|max:20',
-        'description' => 'required|max:50',
-    ];
+{
 
     public function index()
     {
-        $categories = Category::all()->sortBy('id');
-
-        return view('categories.list', compact('categories'));
+        return view('categories.list', ['categories' => Category::all()->sortBy('id')]);
     }
 
     public function create()
@@ -28,51 +20,26 @@ class CategoryController extends Controller
         return view('categories.create');
     }
 
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-
-        // check validation and create new category
-
-        $validator = Validator::make($request->all(), $this->rules);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        $category = Category::create($request->all());
 
         if($request->file('image'))
-            $path = $request->file('image')->store('upload', 'public');
-        else
-            $path = '';
+            $category->image = $request->file('image')->store('upload', 'public');
 
-        $category = Category::create(array(
-            'name'         => $request->name,
-            'description'  => $request->description,
-            'image'        => $path,
-        ));
+        $category->save();
 
         return redirect()->route('category.index');
     }
 
-    public function edit($id)
+    public function edit(Category $category)
     {
-        $category = Category::findorfail($id);
-
         return view('categories.edit', compact('category'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Category $category, CategoryRequest $request)
     {
-
-        $validator = Validator::make($request->all(), $this->rules);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $category = Category::findorfail($id);
-
-        $category->name        = $request->name;
-        $category->description = $request->description;
+        $category->update($request->all());
 
         if($request->file('image'))
             $category->image = $request->file('image')->store('upload', 'public');
